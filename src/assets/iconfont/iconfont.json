@@ -1,0 +1,51 @@
+{
+  "id": "2208059",
+  "name": "live-chat-admin",
+  "font_family": "iconfont",
+  "css_prefix_text": "team-icon",
+  "description": "live-chat-admin",
+  "glyphs": [
+    {
+      "icon_id": "20594647",
+      "name": "tabs",
+      "font_class": "tabs",
+      "unicode": "e63e",
+      "unicode_decimal": 58942
+    },
+    {
+      "icon_id": "22129506",
+      "name": "logo",
+      "font_class": "logo",
+      "unicode": "e620",
+      "unicode_decimal": 58912
+    },
+    {
+      "icon_id": "7795613",
+      "name": "xinpin",
+      "font_class": "xinpin",
+      "unicode": "e614",
+      "unicode_decimal": 58900
+    },
+    {
+      "icon_id": "7795615",
+      "name": "xinpinrenqiwang",
+      "font_class": "xinpinrenqiwang",
+      "unicode": "e615",
+      "unicode_decimal": 58901
+    },
+    {
+      "icon_id": "5698509",
+      "name": "exit-fullscreen",
+      "font_class": "exit-fullscreen",
+      "unicode": "e62a",
+      "unicode_decimal": 58922
+    },
+    {
+      "icon_id": "5698510",
+      "name": "fullscreen",
+      "font_class": "fullscreen",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    }
+  ]
+}

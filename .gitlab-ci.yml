@@ -1,0 +1,120 @@
+stages:
+  - build
+  - deploy
+
+build:
+  image: docker:stable
+  stage: build
+  services:
+    - docker:dind
+  before_script:
+    - docker login -u "$CI_REGISTRY_USER" -p "$CI_REGISTRY_PASSWORD" $CI_REGISTRY
+  script:
+    - docker build --build-arg branch=$CI_COMMIT_REF_NAME -t "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID" .
+    - docker push "$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID"
+  tags:
+    - automation_qa
+  only:
+    - master
+    - dev
+    - stage
+
+.deploy:
+  stage: deploy
+  image:
+    name: argoproj/argocd:v2.5.0
+  script:
+    - /usr/local/bin/argocd app create $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME-$PROJECT
+         --values values-$CI_PROJECT_NAMESPACE-$CI_PROJECT_NAME.yaml
+         --repo $HELM_REPO --path $REPO_PATH --auth-token $ARGOCD_TOKEN --project $CI_PROJECT_NAMESPACE --grpc-web --server $ARGOCD_SERVER
+         --dest-server $KUBE_CLUSTER --upsert --revision $CI_COMMIT_REF_NAME
+         --sync-policy automated --auto-prune --dest-namespace $NAMESPACE --insecure
+         --helm-set deployment.image=$CI_REGISTRY_IMAGE:$CI_COMMIT_REF_NAME-$CI_PIPELINE_ID
+         --helm-set project.name=$PROJECT
+         --helm-set branch=$CI_COMMIT_REF_NAME
+         --helm-set worker=$WORKER
+    - /usr/local/bin/argocd app wait $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME-$PROJECT --timeout 900 --auth-token $ARGOCD_TOKEN --grpc-web --server $ARGOCD_SERVER --insecure
+  tags:
+    - automation_qa
+  when: manual
+  rules:
+    - if: $CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != 'merge_request_event'
+      variables:
+        NAMESPACE: "support-service"
+        WORKER: "master"
+      when: manual
+    - if: $CI_COMMIT_REF_NAME == "dev" && $WHEN == "on_success" && $CI_PIPELINE_SOURCE != 'merge_request_event'
+      variables:
+        NAMESPACE: "support-service-dev"
+        WORKER: "dev"
+      when: on_success
+    - if: $CI_COMMIT_REF_NAME == "dev" && $WHEN == "manual" && $CI_PIPELINE_SOURCE != 'merge_request_event'
+      variables:
+        NAMESPACE: "support-service-dev"
+        WORKER: "dev"
+      when: manual
+    - if: $CI_COMMIT_REF_NAME == "stage" && $WHEN == "on_success" && $CI_PIPELINE_SOURCE != 'merge_request_event'
+      variables:
+        NAMESPACE: "support-service-stage"
+        WORKER: "dev"
+      when: on_success
+    - if: $CI_COMMIT_REF_NAME == "stage" && $WHEN == "manual" && $CI_PIPELINE_SOURCE != 'merge_request_event'
+      variables:
+        NAMESPACE: "support-service-stage"
+        WORKER: "dev"
+      when: manual
+    - when: never
+
+deploy-rox:
+  extends: .deploy
+  variables:
+    PROJECT: "rox"
+    WHEN: "manual"
+
+deploy-volna:
+  extends: .deploy
+  variables:
+    PROJECT: "volna"
+    WHEN: "manual"
+
+deploy-sol:
+  extends: .deploy
+  variables:
+    PROJECT: "sol"
+    WHEN: "manual"
+
+deploy-fresh:
+  extends: .deploy
+  variables:
+    PROJECT: "fresh"
+    WHEN: "manual"
+
+deploy-jet:
+  extends: .deploy
+  variables:
+    PROJECT: "jet"
+    WHEN: "manual"
+
+deploy-izzi:
+  extends: .deploy
+  variables:
+    PROJECT: "izzi"
+    WHEN: "manual"
+
+deploy-legzo:
+  extends: .deploy
+  variables:
+    PROJECT: "legzo"
+    WHEN: "on_success"
+
+deploy-starda:
+  extends: .deploy
+  variables:
+    PROJECT: "starda"
+    WHEN: "manual"
+
+deploy-drip:
+  extends: .deploy
+  variables:
+    PROJECT: "drip"
+    WHEN: "manual"

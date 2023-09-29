@@ -1,0 +1,1 @@
+export const FORMAT_DATETIME_RESPONSE = "DD.MM.YYYY HH:mm:ss";

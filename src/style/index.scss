@@ -1,0 +1,67 @@
+@import "./mixin.scss";
+@import "./transition.scss";
+@import "./element-plus.scss";
+@import "./sidebar.scss";
+@import "./dark.scss";
+
+:root {
+  --pure-transition-duration: 0.016s;
+  --color-positive-default: #22aa61;
+  --color-negative-default: #d74747;
+  --color-blue: #0052d9;
+  --color-action-default: #4284f5;
+  --content-subtle: #677179;
+  --content-disabled: #a0a6ab;
+  --content-default: #424d57;
+  --content-basic-primary: #424d57;
+  --content-text-default: #131317;
+  --content-background-default: #dcdcdc;
+  --content-basic-secondary: #677179;
+  --border-default: #bdc7d1;
+  --border-basic-tertiary: #e9edf0;
+  --border-subtle: #e4e8ec;
+  --decor-gray40: #eeeeef;
+  --border-basic-secondary: #e4e8ec;
+  --surface-secondary-default: #f1f6f8;
+  --surface-moderate-default: #cad6dd;
+  --surface-primary-default: #fff;
+  --surface-basic-active: #dae4eb;
+  --surface-primary-active: #ebf1f4;
+  --surface-secondary-subtle: #e4e8ec;
+  --surface-basic-subtle: #f1f6f8;
+  --surface-basic-hover: #e0e8eb;
+  --surface-tertiary-default: #e6e6e7;
+  --el-input-hover-border-color: #c0c4cc;
+  --el-color-danger: #f56c6c;
+  --chat-dif-message-bg-color: #fcf0c9;
+  --chat-no-accept-message-color: #ffff;
+  --chat-no-accept-bg-color: #f95555;
+  --picker-list-option-background-hover: #f3f3f3;
+  --primary-color: #0071fe;
+  --error-color: #f23648;
+  --error-bg-color: #fddfe2;
+  --success-color: #21a67a;
+  --success-bg-color: #e0eee4;
+}
+
+.html-grey {
+  filter: grayscale(100%);
+}
+
+.html-weakness {
+  filter: invert(80%);
+}
+
+::-webkit-scrollbar {
+  width: 15px;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--surface-moderate-default);
+  border-radius: 8px;
+  box-shadow: inset 0 0 0 3px var(--surface-primary-default);
+}
+
+::-webkit-scrollbar-track {
+  background: var(--surface-primary-default);
+}
