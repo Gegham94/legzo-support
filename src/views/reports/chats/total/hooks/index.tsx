@@ -2,7 +2,7 @@ import { onMounted, ref, watch } from "vue";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { message } from "@/utils/message";
-import moment from "moment-timezone";
+import moment from "moment";
 import { ChatsTotal } from "@/api/reports/interfaces";
 import { isEqual } from "lodash";
 import { useReportHook, useReportStore } from "@/store/modules/reports";
@@ -10,9 +10,6 @@ import { storeToRefs } from "pinia";
 import { defaultChatTotal } from "@/constants/common";
 import { useGroupsStore } from "@/store/modules/groups";
 import { useAgentsStore } from "@/store/modules/agents";
-
-const offsetUTC = Math.round(new Date().getTimezoneOffset() / 60);
-moment.tz.setDefault(`${offsetUTC}:00`);
 
 export function useHooks() {
   const dataLoading = ref(true);
@@ -36,6 +33,7 @@ export function useHooks() {
     getCompareGroupsData,
     getCompareGroupsStatus,
     getTags,
+    getCountry,
     getFilterList
   } = storeToRefs(reportStore);
 
@@ -48,6 +46,13 @@ export function useHooks() {
     data
       ?.map(agent => agentList.value.find(item => item.id === agent)?.email)
       .join(" | ");
+
+  const getDateName = (from, to) => {
+    const fromLL = moment(from).format("ll");
+    const toLL = moment(to).format("ll");
+
+    return fromLL !== toLL ? `${fromLL} - ${toLL}` : fromLL;
+  };
 
   const fetchHours = async (params, method) => {
     try {
@@ -63,6 +68,7 @@ export function useHooks() {
               "filters[agents]": params.agents,
               "filters[groups]": params.groups,
               "filters[tags]": getTags.value,
+              "filters[country]": getCountry.value,
               distribution: "hour",
               tzOffset: new Date().getTimezoneOffset(),
               method: method
@@ -137,6 +143,7 @@ export function useHooks() {
               "filters[agents]": params.agents,
               "filters[groups]": params.groups,
               "filters[tags]": getTags.value,
+              "filters[country]": getCountry.value,
               distribution: "days",
               tzOffset: new Date().getTimezoneOffset(),
               method: method
@@ -169,9 +176,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setCurrentDateCurrentAgentCurrentGroup({
         label,
@@ -181,7 +189,7 @@ export function useHooks() {
           agent: getAgentsName(getCurrentAgents.value),
           group: getGroupsName(getCurrentGroups.value)
         },
-        color: "rgb(84 112 198)"
+        color: "#5470c6"
       });
     });
   };
@@ -206,9 +214,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setCurrentDateCurrentAgentCompareGroup({
         label,
@@ -218,7 +227,7 @@ export function useHooks() {
           agent: getAgentsName(getCurrentAgents.value),
           group: getGroupsName(getCompareGroupsData.value)
         },
-        color: "rgb(145 203 116)"
+        color: "#91cc75"
       });
     });
   };
@@ -243,9 +252,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setCurrentDateCompareAgentCurrentGroup({
         label,
@@ -255,7 +265,7 @@ export function useHooks() {
           agent: getAgentsName(getCompareAgentsData.value),
           group: getGroupsName(getCurrentGroups.value)
         },
-        color: "rgb(115 191 222)"
+        color: "#fac858"
       });
     });
   };
@@ -280,9 +290,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setCurrentDateCompareAgentCompareGroup({
         label,
@@ -292,7 +303,7 @@ export function useHooks() {
           agent: getAgentsName(getCompareAgentsData.value),
           group: getGroupsName(getCompareGroupsData.value)
         },
-        color: "rgb(238 102 102)"
+        color: "#ee6666"
       });
     });
   };
@@ -317,9 +328,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setCompareDateCurrentAgentCurrentGroup({
         label,
@@ -329,7 +341,7 @@ export function useHooks() {
           agent: getAgentsName(getCurrentAgents.value),
           group: getGroupsName(getCurrentGroups.value)
         },
-        color: "rgb(234 124 204)"
+        color: "#73c0de"
       });
     });
   };
@@ -346,8 +358,7 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCurrentAgents.value,
-        groups: getCompareGroupsData.value,
-        tags: getTags.value
+        groups: getCompareGroupsData.value
       },
       "getCompareDateCurrentAgentCompareGroup"
     ).then(data => {
@@ -355,9 +366,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setCompareDateCurrentAgentCompareGroup({
         label,
@@ -367,7 +379,7 @@ export function useHooks() {
           agent: getAgentsName(getCurrentAgents.value),
           group: getGroupsName(getCompareGroupsData.value)
         },
-        color: "rgb(59 162 114)"
+        color: "#3ba272"
       });
     });
   };
@@ -384,8 +396,7 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCompareAgentsData.value,
-        groups: getCurrentGroups.value,
-        tags: getTags.value
+        groups: getCurrentGroups.value
       },
       "getCompareDateCompareAgentCurrentGroup"
     ).then(data => {
@@ -393,9 +404,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setCompareDateCompareAgentCurrentGroup({
         label,
@@ -405,7 +417,7 @@ export function useHooks() {
           agent: getAgentsName(getCompareAgentsData.value),
           group: getGroupsName(getCurrentGroups.value)
         },
-        color: "rgb(153 96 180)"
+        color: "#fc8452"
       });
     });
   };
@@ -426,8 +438,7 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCompareAgentsData.value,
-        groups: getCompareGroupsData.value,
-        tags: getTags.value
+        groups: getCompareGroupsData.value
       },
       "getCompareDateCompareAgentCompareGroup"
     ).then(data => {
@@ -435,9 +446,10 @@ export function useHooks() {
         moment.unix(item.interval).format("DD-MM-YY")
       );
       const count = data?.map(item => item.count);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setCompareDateCompareAgentCompareGroup({
         label,
@@ -447,7 +459,7 @@ export function useHooks() {
           agent: getAgentsName(getCompareAgentsData.value),
           group: getGroupsName(getCompareGroupsData.value)
         },
-        color: "rgb(252 132 82)"
+        color: "#9a60b4"
       });
     });
   };
@@ -469,7 +481,8 @@ export function useHooks() {
       getCurrentDateTo,
       getCurrentAgents,
       getCurrentGroups,
-      getTags
+      getTags,
+      getCountry
     ],
     async (newValue, oldValue) => {
       if (!isEqual(newValue, oldValue)) {
@@ -515,16 +528,22 @@ export function useHooks() {
   watch(getFilterList, async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       if (!newValue.includes("agent")) {
-        reportHook.clearFilterAgent();
+        await reportHook.clearFilterAgent();
       }
 
       if (!newValue.includes("group")) {
-        reportHook.clearFilterGroup();
+        await reportHook.clearFilterGroup();
       }
 
       if (!newValue.includes("tag")) {
-        reportHook.clearFilterTag();
+        await reportHook.clearFilterTag();
       }
+
+      if (!newValue.includes("country")) {
+        await reportHook.clearFilterCountry();
+      }
+
+      await getData();
     }
   });
 

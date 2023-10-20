@@ -39,45 +39,51 @@ export type dateType = {
   date?: Moment;
 };
 
-export type reportFilterType = {
-  filters: {
-    filterList: string[];
-    filterDate: {
-      current: {
-        from: number;
-        to: number;
-        date: number;
-        interval: string;
-      };
-      compare: {
-        status: boolean;
-        from: number;
-        to: number;
-        interval: string;
-      };
+export type selectFilter = {
+  filterList: string[];
+  filterDate: {
+    current: {
+      from: number;
+      to: number;
+      date: number;
+      interval: string;
     };
-    filterAgents: {
-      current: string[];
-      compare: {
-        status: boolean;
-        data: string[];
-      };
-    };
-    filterGroups: {
-      current: string[];
-      compare: {
-        status: boolean;
-        data: string[];
-      };
-    };
-    filterTags: string[];
-    visible: {
-      date: boolean;
-      agent: boolean;
-      group: boolean;
-      tag: boolean;
+    compare?: {
+      status: boolean;
+      from: number;
+      to: number;
+      interval: string;
     };
   };
+  filterAgents: {
+    current: string[];
+    compare?: {
+      status: boolean;
+      data: string[];
+    };
+  };
+  filterGroups: {
+    current: string[];
+    compare?: {
+      status: boolean;
+      data: string[];
+    };
+  };
+  filterTags: string[];
+  filterCountry: string[];
+  filterRating: string[];
+  visible: {
+    date: boolean;
+    agent: boolean;
+    group: boolean;
+    tag: boolean;
+    country: boolean;
+    rating: boolean;
+  };
+};
+
+export type reportFilterType = {
+  filters: selectFilter;
   chatsTotal: {
     currentDateCurrentAgentCurrentGroup: totalData;
     currentDateCurrentAgentCompareGroup: totalData;
@@ -272,8 +278,9 @@ export type roomsType = {
   roomsList: Room[];
   selectedRoomId: number;
   currentUser: CustomerDetail;
-  controllerMessageStatus: boolean;
+  messageStatus: boolean;
   dataLoading: boolean;
+  filters?: selectFilter;
 };
 
 export type messagesType = {

@@ -303,7 +303,7 @@ export default {
       return cssThemeVars(customStyles);
     },
     isShowRoomInfo() {
-      return this.room.id && this.showRoomInfo;
+      return !!(this.room.id && this.showRoomInfo);
     },
     orderedRooms() {
       return this.roomsCasted;

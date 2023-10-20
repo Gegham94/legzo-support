@@ -46,9 +46,6 @@ export const useUserStore = defineStore({
     },
     getOnlineStatus() {
       return this.user?.online?.status ?? 0;
-    },
-    getReadyAfterLogin() {
-      return this.user?.params?.readyAfterLogin ?? false;
     }
   },
   actions: {

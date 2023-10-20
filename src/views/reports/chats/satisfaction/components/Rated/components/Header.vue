@@ -12,7 +12,7 @@ const cardClass = computed(() => ["list-card-item"]);
   <div :class="cardClass">
     <div class="list-card-item_detail bg-bg_color">
       <el-row>
-        <el-col :span="12">
+        <el-col :span="9">
           <div
             class="flex items-center text-md text-text_color_regular font-bold"
           >
@@ -42,6 +42,12 @@ const cardClass = computed(() => ["list-card-item"]);
           class="text-md text-text_color_regular text-center font-bold"
         >
           <p class="mr-1 cursor-pointer">No rated</p>
+        </el-col>
+        <el-col
+          :span="3"
+          class="text-md text-text_color_regular text-center font-bold"
+        >
+          <p class="mr-1 cursor-pointer">Score</p>
         </el-col>
       </el-row>
     </div>

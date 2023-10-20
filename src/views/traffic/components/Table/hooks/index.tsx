@@ -6,7 +6,6 @@ import { message } from "@/utils/message";
 import { computed, onBeforeUnmount, onMounted, ref, watch } from "vue";
 import { useUserStore } from "@/store/modules/user";
 import { useRoomsStore } from "@/store/modules/rooms";
-import { setManagerStatus } from "@/api/agents";
 import { storeToRefs } from "pinia";
 
 export function useTableHooks() {
@@ -14,7 +13,7 @@ export function useTableHooks() {
   const { getCurrentUserId } = storeToRefs(usersStore);
 
   const roomsStore = useRoomsStore();
-  const { setControllerMessageStatus } = roomsStore;
+  const { setMessageStatus } = roomsStore;
 
   const router = useRouter();
   const dataLoading = ref(true);
@@ -25,9 +24,14 @@ export function useTableHooks() {
   const selectAll = ref(false);
   const tableHeaderTitles = ref([
     {
-      label: "Name",
+      label: "Agent name",
       isSelected: true,
-      value: "name"
+      value: "agent_name"
+    },
+    {
+      label: "User name",
+      isSelected: true,
+      value: "user_name"
     },
     {
       label: "Email",
@@ -38,6 +42,11 @@ export function useTableHooks() {
       label: "Actions",
       isSelected: true,
       value: "actions"
+    },
+    {
+      label: "Room ID",
+      isSelected: true,
+      value: "room_id"
     },
     {
       label: "Activity",
@@ -61,17 +70,17 @@ export function useTableHooks() {
     },
     {
       label: "Last page",
-      isSelected: true,
+      isSelected: false,
       value: "last_page_title"
     },
     {
       label: "No. of chats",
-      isSelected: true,
+      isSelected: false,
       value: "chats_count"
     },
     {
       label: "Customer ID",
-      isSelected: true,
+      isSelected: false,
       value: "customer_id"
     },
     {
@@ -115,7 +124,7 @@ export function useTableHooks() {
 
   const selectAllCheckbox = (state: boolean) => {
     tableHeaderTitles.value.forEach(option => {
-      if (option.value !== "name") {
+      if (option.value !== "agent_name") {
         option.isSelected = state;
       }
     });
@@ -452,37 +461,44 @@ export function useTableHooks() {
 
   const fillTableData = data => {
     tableData.value = data.map(item => ({
-      name: item.name || "—",
-      email: item.email || "—",
-      activity: item.activity || "—",
-      country_code: item.country_code || "—",
-      group_name: item.group_name || "—",
-      ip: item.ip || "—",
-      managers: item.managers,
-      roomId: item.id,
-      chats_count: item.chats_count || 0,
-      last_page_title: (item.last_page && item.last_page.title) || "—",
-      last_page_url: (item.last_page && item.last_page.url) || "—",
-      login: item.login || "—",
-      customer_id: item.customer_id || "—",
-      prefs_browser: (item.prefs && item.prefs.browser) || "—",
-      prefs_os: (item.prefs && item.prefs.os) || "—",
+      agent_name:
+        item.primary_manager && item.primary_manager.name
+          ? item.primary_manager.name
+          : "—",
+      user_name: item.name ? item.name : "—",
+      email: item.email ? item.email : "—",
+      activity: item.activity ? item.activity : "—",
+      country_code: item.country_code ? item.country_code : "—",
+      group_name: item.group_name ? item.group_name : "—",
+      ip: item.ip ? item.ip : "—",
+      managers: item.managers ? item.managers : null,
+      room_id: item.id ? item.id : "—",
+      chats_count: item.chats_count ? item.chats_count : 0,
+      last_page_title:
+        item.last_page && item.last_page.title ? item.last_page.title : "—",
+      last_page_url:
+        item.last_page && item.last_page.url ? item.last_page.url : "—",
+      login: item.login ? item.login : "—",
+      customer_id: item.customer_id ? item.customer_id : "—",
+      prefs_browser:
+        item.prefs && item.prefs.browser ? item.prefs.browser : "—",
+      prefs_os: item.prefs && item.prefs.os ? item.prefs.os : "—",
       city:
-        (item.prefs && item.prefs.geolocation && item.prefs.geolocation.city) ||
-        "—"
+        item.prefs && item.prefs.geolocation && item.prefs.geolocation.city
+          ? item.prefs.geolocation.city
+          : "—"
     }));
   };
 
-  const chatAction = async (row, status = null) => {
-    const room_id = row.roomId;
-    if (status === 2) {
-      await setManagerStatus(status);
-      await setControllerMessageStatus(true);
+  const chatAction = async (row, startChatStatus) => {
+    const room_id = row.room_id;
+    if (startChatStatus) {
+      await setMessageStatus(true);
       router.push("/chats");
       await http.post(`/managers/room/${room_id}/connect`);
     }
-    if (!status) {
-      await setControllerMessageStatus(true);
+    if (!startChatStatus) {
+      await setMessageStatus(true);
       router.push("/chats");
       await http.post(
         `/managers/room/${room_id}/connect-manager/${currentUserId.value}`

@@ -33,11 +33,12 @@ build:
          --helm-set project.name=$PROJECT
          --helm-set branch=$CI_COMMIT_REF_NAME
          --helm-set worker=$WORKER
+         $VARIABLES_CONFIG     
     - /usr/local/bin/argocd app wait $CI_PROJECT_NAME-$CI_COMMIT_REF_NAME-$PROJECT --timeout 900 --auth-token $ARGOCD_TOKEN --grpc-web --server $ARGOCD_SERVER --insecure
   tags:
     - automation_qa
   when: manual
-  rules:
+  rules:  
     - if: $CI_COMMIT_REF_NAME == "master" && $CI_PIPELINE_SOURCE != 'merge_request_event'
       variables:
         NAMESPACE: "support-service"
@@ -65,56 +66,78 @@ build:
       when: manual
     - when: never
 
+deploy-admin:
+  extends: .deploy
+  variables:
+    PROJECT: "admin"
+    WHEN: "on_success"
+    VARIABLES_CONFIG: |
+      --helm-set ingress.customPaths[0].path=/private
+      --helm-set ingress.customPaths[2].backend.service.name=srv-support-service-frontend-$PROJECT-$CI_COMMIT_REF_NAME
+      --helm-set ingress.customPaths[2].backend.service.port.name=http
+      --helm-set ingress.customPaths[2].path=/
+      --helm-set ingress.customPaths[2].pathType=ImplementationSpecific
+    
+
 deploy-rox:
   extends: .deploy
   variables:
     PROJECT: "rox"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-volna:
   extends: .deploy
   variables:
     PROJECT: "volna"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-sol:
   extends: .deploy
   variables:
     PROJECT: "sol"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-fresh:
   extends: .deploy
   variables:
     PROJECT: "fresh"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-jet:
   extends: .deploy
   variables:
     PROJECT: "jet"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-izzi:
   extends: .deploy
   variables:
     PROJECT: "izzi"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-legzo:
   extends: .deploy
   variables:
     PROJECT: "legzo"
     WHEN: "on_success"
+    VARIABLES_CONFIG: ""
 
 deploy-starda:
   extends: .deploy
   variables:
     PROJECT: "starda"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""
 
 deploy-drip:
   extends: .deploy
   variables:
     PROJECT: "drip"
     WHEN: "manual"
+    VARIABLES_CONFIG: ""

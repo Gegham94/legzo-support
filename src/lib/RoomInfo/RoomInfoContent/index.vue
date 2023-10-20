@@ -31,7 +31,9 @@
       <div class="flex flex-col gap-2 mt-4">
         <div class="detail-line">
           <span class="detail-label">ID:</span>
-          <span class="detail-value">{{ currentUser.id }}</span>
+          <span class="detail-value">{{
+            currentUser.id ? currentUser.id : "..."
+          }}</span>
         </div>
         <div class="detail-line flex items-center">
           <span class="detail-label">
@@ -46,6 +48,12 @@
             formatterDate(currentUser?.created_at)
           }}</span>
         </div>
+        <div class="detail-line">
+          <span class="detail-label">Room ID:</span>
+          <span class="detail-value">{{
+            currentUser.last_room?.id ? currentUser.last_room.id : "..."
+          }}</span>
+        </div>
       </div>
     </el-card>
     <el-card shadow="never">
@@ -53,7 +61,9 @@
       <div class="flex flex-col">
         <div class="detail-line">
           <span class="detail-label">Name:</span>
-          <span class="detail-value">{{ getGroupName }}</span>
+          <span class="detail-value">{{
+            getGroupName ? getGroupName : "..."
+          }}</span>
         </div>
       </div>
     </el-card>
@@ -65,18 +75,24 @@
             <span class="detail-label">City:</span>
             <span class="detail-value">{{
               currentUser?.last_visit?.geolocation?.city
+                ? currentUser?.last_visit?.geolocation?.city
+                : "..."
             }}</span>
           </div>
           <div class="detail-line">
             <span class="detail-label">Region:</span>
             <span class="detail-value">{{
               currentUser?.last_visit?.geolocation?.region
+                ? currentUser?.last_visit?.geolocation?.region
+                : "..."
             }}</span>
           </div>
           <div class="detail-line">
             <span class="detail-label">Country:</span>
             <span class="detail-value">{{
               currentUser?.last_visit?.geolocation?.country
+                ? currentUser?.last_visit?.geolocation?.country
+                : "..."
             }}</span>
           </div>
         </div>
@@ -93,12 +109,16 @@
         <h3>Technology</h3>
         <div class="detail-line">
           <span class="detail-label">IP address:</span>
-          <span class="detail-value">{{ currentUser?.last_visit?.ip }}</span>
+          <span class="detail-value">{{
+            currentUser?.last_visit?.ip ? currentUser?.last_visit?.ip : "..."
+          }}</span>
         </div>
         <div class="detail-line">
           <span class="detail-label">User agent:</span>
           <span class="detail-value">{{
             currentUser?.last_visit?.user_agent
+              ? currentUser?.last_visit?.user_agent
+              : "..."
           }}</span>
         </div>
       </el-card>
@@ -159,6 +179,7 @@ h3 {
   .detail-label {
     color: #677179;
     padding-right: 10px;
+    white-space: nowrap;
   }
 
   .detail-value {

@@ -89,7 +89,7 @@
             </loader>
           </div>
           <transition-group :key="roomId" name="vac-fade-message" tag="span">
-            <div class="relative pb-4">
+            <div class="relative pb-4" :key="`${roomId}-child`">
               <el-button
                 v-if="isArchive && room.next"
                 class="more-message-button next-messages"
@@ -238,7 +238,7 @@ export default {
     rooms: { type: Array, required: true },
     roomId: { type: [String, Number], required: true },
     roomsNotPrimary: { type: Array, required: true },
-    currentUser: { type: Array, required: true },
+    currentUser: { type: Object, required: true },
     loadFirstRoom: { type: Boolean, required: true },
     messages: { type: Array, required: true },
     roomMessage: { type: String, default: null },
@@ -344,7 +344,9 @@ export default {
     },
     getManager() {
       const room = this.room;
-      const manager = room.users.find(user => user.id === room.primary_user_id);
+      const manager = room?.users?.find(
+        user => user.id === room.primary_user_id
+      );
       if (!manager) return null;
       return manager.name;
     },

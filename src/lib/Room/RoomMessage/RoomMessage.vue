@@ -448,10 +448,14 @@ export default {
       return moment.unix(value).format("DD MMMM YYYY");
     },
     isSystemMessage(code) {
-      return code === 1 || code === 11 || code === 12 || code === 13;
+      return (
+        code === 1 || code === 11 || code === 12 || code === 13 || code === 91
+      );
     },
     isShowTimeSystemMessage(code) {
-      return code === 11 || code === 12 || code === 13;
+      return (
+        code === 1 || code === 11 || code === 12 || code === 13 || code === 91
+      );
     },
     getUserName(userId) {
       return this.roomUsers.find(user => user.id === userId)?.name ?? "";

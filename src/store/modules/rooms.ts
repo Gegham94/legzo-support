@@ -12,13 +12,10 @@ export const useRoomsStore = defineStore({
     roomsList: [],
     selectedRoomId: null,
     currentUser: null,
-    controllerMessageStatus: false,
+    messageStatus: false,
     dataLoading: false
   }),
   getters: {
-    getDataLoading() {
-      return this.dataLoading;
-    },
     getRooms() {
       return this.roomsList;
     },
@@ -34,8 +31,8 @@ export const useRoomsStore = defineStore({
     getCurrentUser() {
       return this.currentUser;
     },
-    getControllerMessageStatus() {
-      return this.controllerMessageStatus;
+    getMessageStatus() {
+      return this.messageStatus;
     }
   },
   actions: {
@@ -100,12 +97,10 @@ export const useRoomsStore = defineStore({
       this.addNewRoom(room);
     },
     deleteRoom(room: Room): void {
-      this.dataLoading = true;
       remove(this.roomsList, ({ id }) => id === room.id);
       if (room.id === this.selectedRoomId) {
         this.selectedRoomId = this.roomsList[0]?.id;
       }
-      this.dataLoading = false;
     },
     setSelectedRoomId(roomId: number): void {
       this.selectedRoomId = roomId;
@@ -134,8 +129,8 @@ export const useRoomsStore = defineStore({
         }
       }
     },
-    setControllerMessageStatus(status: boolean): void {
-      this.controllerMessageStatus = status;
+    setMessageStatus(status: boolean): void {
+      this.MessageStatus = status;
     },
     addNewMessage(message: Message): void {
       const selectedRoom = this.roomsList.find(

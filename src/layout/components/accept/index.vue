@@ -6,11 +6,11 @@ defineOptions({
   name: "Accept"
 });
 
-const setUserStatus = status => {
+const usersStore = useUserStoreHook();
+
+const setUserStatus = async status => {
   setManagerStatus(status);
 };
-
-const usersStore = useUserStoreHook();
 </script>
 
 <template>

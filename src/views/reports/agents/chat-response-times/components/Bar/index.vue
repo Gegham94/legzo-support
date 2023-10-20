@@ -8,7 +8,7 @@ import {
   type EchartOptions
 } from "@pureadmin/utils";
 import { useHooks } from "./hooks";
-import moment from "moment";
+import { secondsFormatter } from "@/utils/common";
 
 const { dataTitles, dataSeries } = useHooks();
 
@@ -23,36 +23,27 @@ const { setOptions, resize } = useECharts(barChartRef as Ref<HTMLDivElement>, {
   theme
 });
 
-const timeFormatter = seconds => {
-  if (seconds >= 3600) {
-    return moment.utc(seconds * 1000).format("H[h] m[m] s[s]");
-  } else if (seconds >= 60) {
-    return moment.utc(seconds * 1000).format("m[m] s[s]");
-  } else {
-    return moment.utc(seconds * 1000).format("s[s]");
-  }
-};
-
 setOptions({
   tooltip: {
-    trigger: "axis",
+    trigger: "item",
     axisPointer: {
-      type: "shadow"
+      axis: "x",
+      type: "none"
     },
-    formatter: function (params) {
-      const formatedTime = params.map(param => {
-        const originalTime = param.value;
-        const formattedValue = timeFormatter(originalTime);
-        return `${formattedValue}`;
-      });
-      const tooltipContent = `
-      <div>${params[0].axisValueLabel}</div>
-      <div>${params[0].marker}
-        <span>${params[0].seriesName}</span>
-        <span style="margin-left:15px;font-weight:600">${formatedTime}</span>
-      </div>
-      `;
-      return tooltipContent;
+    formatter: params => {
+      return `
+      <div class="font-bold">${params.data.value2}<br />${
+        params.seriesName
+      }</div>
+      <hr style="margin: 5px 0" />
+      <div class="flex flex-col">
+        <span>Avg. first response time: <span class="font-bold">${secondsFormatter(
+          params.value
+        )}</span></span>
+        <span>Number of chats: <span class="font-bold">${
+          params.data.value1
+        }</span></span>
+      </div>`;
     }
   },
   toolbox: {
@@ -72,9 +63,7 @@ setOptions({
     {
       type: "value",
       axisLabel: {
-        formatter: function (seconds) {
-          return timeFormatter(seconds);
-        }
+        formatter: seconds => secondsFormatter(seconds)
       }
     }
   ],

@@ -60,7 +60,7 @@ export type File = {
 
 export type MessageCreate = {
   msg: string;
-  files?: File[];
+  files?: string[];
 };
 
 export type Room = {

@@ -19,7 +19,7 @@ defineProps({
 <template>
   <div class="list-card-item_detail bg-bg_color">
     <el-row>
-      <el-col :span="12">
+      <el-col :span="9">
         <AgentCard :agent="agent" />
       </el-col>
       <el-col :span="3" class="card-count">
@@ -42,6 +42,11 @@ defineProps({
       <el-col :span="3" class="card-count">
         <p class="list-card-item_detail--count text-text_color_regular">
           {{ agent.no_rated }}
+        </p>
+      </el-col>
+      <el-col :span="3" class="card-count">
+        <p class="list-card-item_detail--count text-text_color_regular">
+          {{ agent.score }}
         </p>
       </el-col>
     </el-row>

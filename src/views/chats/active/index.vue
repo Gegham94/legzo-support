@@ -9,7 +9,6 @@ defineOptions({
 });
 
 const {
-  dataLoading,
   rooms,
   menuActionHandler,
   screenHeight,
@@ -54,7 +53,7 @@ const messageSelectionActions = [{ name: "deleteMessages", title: "Delete" }];
 </script>
 
 <template>
-  <div v-loading="dataLoading">
+  <div>
     <chat-tags :roomId="tagsRoomId" @close-modal-room="closeModalRoom" />
     <chat-transfer
       :roomId="transferRoomId"

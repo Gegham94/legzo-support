@@ -8,12 +8,17 @@ defineOptions({
   name: "ReportsAgentsPerformance"
 });
 
-const { dataLoading } = useHooks();
+const { dataLoading, sortBy, onSort } = useHooks();
 </script>
 
 <template>
   <div class="totals">
-    <Filter :is-agent="false" :is-tag="false" :is-group-compare="false" />
+    <Filter
+      :is-agent="false"
+      :is-tag="false"
+      :is-country="false"
+      :is-group-compare="false"
+    />
     <el-row :gutter="24" style="margin: 20px">
       <el-col
         :xs="24"
@@ -70,7 +75,7 @@ const { dataLoading } = useHooks();
           </template>
           <el-skeleton animated :rows="7" :loading="dataLoading">
             <template #default>
-              <Table />
+              <Table :on-sort="onSort" :sort-by="sortBy" />
             </template>
           </el-skeleton>
         </el-card>

@@ -2,7 +2,7 @@ import { onMounted, ref, watch } from "vue";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { message } from "@/utils/message";
-import moment from "moment-timezone";
+import moment from "moment";
 import { ChatsSatisfaction } from "@/api/reports/interfaces";
 import { isEqual } from "lodash";
 import { useReportHook, useReportStore } from "@/store/modules/reports";
@@ -10,9 +10,6 @@ import { storeToRefs } from "pinia";
 import { defaultChatSatisfaction } from "@/constants/common";
 import { useGroupsStore } from "@/store/modules/groups";
 import { useAgentsStore } from "@/store/modules/agents";
-
-const offsetUTC = Math.round(new Date().getTimezoneOffset() / 60);
-moment.tz.setDefault(`${offsetUTC}:00`);
 
 export function useHooks() {
   const dataLoading = ref(true);
@@ -36,6 +33,7 @@ export function useHooks() {
     getCompareGroupsData,
     getCompareGroupsStatus,
     getTags,
+    getCountry,
     getFilterList
   } = storeToRefs(reportStore);
 
@@ -48,6 +46,13 @@ export function useHooks() {
     data
       ?.map(agent => agentList.value.find(item => item.id === agent)?.email)
       .join(" | ");
+
+  const getDateName = (from, to) => {
+    const fromLL = moment(from).format("ll");
+    const toLL = moment(to).format("ll");
+
+    return fromLL !== toLL ? `${fromLL} - ${toLL}` : fromLL;
+  };
 
   const fetchRated = async (params, method) => {
     try {
@@ -64,6 +69,7 @@ export function useHooks() {
             "filters[agents]": params.agents,
             "filters[groups]": params.groups,
             "filters[tags]": getTags.value,
+            "filters[country]": getCountry.value,
             distribution: "days",
             tzOffset: new Date().getTimezoneOffset(),
             method: method
@@ -95,6 +101,7 @@ export function useHooks() {
             "filters[agents]": params.agents,
             "filters[groups]": params.groups,
             "filters[tags]": getTags.value,
+            "filters[country]": getCountry.value,
             distribution: "days",
             tzOffset: new Date().getTimezoneOffset(),
             method: method
@@ -137,9 +144,10 @@ export function useHooks() {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setSatisfactionCurrentDateCurrentAgentCurrentGroup({
         label,
@@ -175,9 +183,10 @@ export function useHooks() {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setSatisfactionCurrentDateCurrentAgentCompareGroup({
         label,
@@ -213,9 +222,10 @@ export function useHooks() {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setSatisfactionCurrentDateCompareAgentCurrentGroup({
         label,
@@ -251,9 +261,10 @@ export function useHooks() {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCurrentDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCurrentDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCurrentDateFrom.value,
+        getCurrentDateTo.value
+      );
 
       reportHook.setSatisfactionCurrentDateCompareAgentCompareGroup({
         label,
@@ -289,9 +300,10 @@ export function useHooks() {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setSatisfactionCompareDateCurrentAgentCurrentGroup({
         label,
@@ -320,17 +332,17 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCurrentAgents.value,
-        groups: getCompareGroupsData.value,
-        tags: getTags.value
+        groups: getCompareGroupsData.value
       },
       "getCompareDateCurrentAgentCompareGroup"
     ).then(data => {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setSatisfactionCompareDateCurrentAgentCompareGroup({
         label,
@@ -359,17 +371,17 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCompareAgentsData.value,
-        groups: getCurrentGroups.value,
-        tags: getTags.value
+        groups: getCurrentGroups.value
       },
       "getCompareDateCompareAgentCurrentGroup"
     ).then(data => {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setSatisfactionCompareDateCompareAgentCurrentGroup({
         label,
@@ -402,17 +414,17 @@ export function useHooks() {
         from: getCompareDateFrom.value,
         to: getCompareDateTo.value,
         agents: getCompareAgentsData.value,
-        groups: getCompareGroupsData.value,
-        tags: getTags.value
+        groups: getCompareGroupsData.value
       },
       "getCompareDateCompareAgentCompareGroup"
     ).then(data => {
       const label = data?.map(item => moment(item.interval).format("DD-MM-YY"));
       const good = data?.map(item => item.good);
       const bad = data?.map(item => item.bad);
-      const dateTitle = `${moment(getCompareDateFrom.value).format(
-        "ll"
-      )} - ${moment(getCompareDateTo.value).format("ll")}`;
+      const dateTitle = getDateName(
+        getCompareDateFrom.value,
+        getCompareDateTo.value
+      );
 
       reportHook.setSatisfactionCompareDateCompareAgentCompareGroup({
         label,
@@ -446,7 +458,8 @@ export function useHooks() {
       getCurrentDateTo,
       getCurrentAgents,
       getCurrentGroups,
-      getTags
+      getTags,
+      getCountry
     ],
     async (newValue, oldValue) => {
       if (!isEqual(newValue, oldValue)) {
@@ -492,16 +505,22 @@ export function useHooks() {
   watch(getFilterList, async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       if (!newValue.includes("agent")) {
-        reportHook.clearFilterAgent();
+        await reportHook.clearFilterAgent();
       }
 
       if (!newValue.includes("group")) {
-        reportHook.clearFilterGroup();
+        await reportHook.clearFilterGroup();
       }
 
       if (!newValue.includes("tag")) {
-        reportHook.clearFilterTag();
+        await reportHook.clearFilterTag();
       }
+
+      if (!newValue.includes("country")) {
+        await reportHook.clearFilterCountry();
+      }
+
+      await getData();
     }
   });
 

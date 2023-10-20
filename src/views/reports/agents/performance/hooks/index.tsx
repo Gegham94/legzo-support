@@ -9,11 +9,22 @@ import {
 import { message } from "@/utils/message";
 import { onMounted, ref, watch } from "vue";
 import { isEqual } from "lodash";
+import { SortBy, TableV2SortOrder } from "element-plus";
 
 export function useHooks() {
   const reportStore = useReportStore();
   const dataLoading = ref(true);
+  const sort = ref("email");
   const reportHook = useReportHook();
+
+  const sortBy = ref<SortBy>({
+    key: "email",
+    order: TableV2SortOrder.ASC
+  });
+  const onSort = (_sortBy: SortBy) => {
+    sortBy.value = _sortBy;
+    handleSort(sortBy.value.key);
+  };
 
   const {
     getCurrentDateFrom,
@@ -39,7 +50,8 @@ export function useHooks() {
               "filters[groups]": params.groups,
               distribution: "days",
               tzOffset: new Date().getTimezoneOffset(),
-              method: method
+              method: method,
+              sort: sort.value
             }
           }
         );
@@ -84,18 +96,19 @@ export function useHooks() {
     }
   };
 
-  const getCurrentDateCurrentGroup = async () => {
+  const getTotalCurrentDateCurrentGroup = async () => {
     fetchPerformanceTotal(
       {
         from: getCurrentDateFrom.value,
         to: getCurrentDateTo.value,
         groups: getCurrentGroups.value
       },
-      "getCurrentDateCurrentGroup"
+      "getTotalCurrentDateCurrentGroup"
     ).then(data => {
       reportHook.setAgentsPerformanceCurrentDateCurrentGroup(data);
     });
-
+  };
+  const getCurrentDateCurrentGroup = async () => {
     fetchPerformance(
       {
         from: getCurrentDateFrom.value,
@@ -108,7 +121,7 @@ export function useHooks() {
     });
   };
 
-  const getCompareDateCurrentGroup = async () => {
+  const getTotalCompareDateCurrentGroup = async () => {
     if (!getCompareDateStatus.value) {
       return;
     }
@@ -119,15 +132,21 @@ export function useHooks() {
         to: getCompareDateTo.value,
         groups: getCurrentGroups.value
       },
-      "getCompareDateCurrentGroup"
+      "getTotalCompareDateCurrentGroup"
     ).then(data => {
       reportHook.setAgentsPerformanceCompareDateCurrentGroup(data);
     });
+  };
+
+  const getCompareDateCurrentGroup = async () => {
+    if (!getCompareDateStatus.value) {
+      return;
+    }
 
     fetchPerformance(
       {
-        from: getCurrentDateFrom.value,
-        to: getCurrentDateTo.value,
+        from: getCompareDateFrom.value,
+        to: getCompareDateTo.value,
         groups: getCurrentGroups.value
       },
       "getCompareDateCurrentGroup"
@@ -137,8 +156,26 @@ export function useHooks() {
   };
 
   const getData = () => {
+    getTotalCurrentDateCurrentGroup().catch();
+    getTotalCompareDateCurrentGroup().catch();
     getCurrentDateCurrentGroup().catch();
     getCompareDateCurrentGroup().catch();
+  };
+
+  const handleSort = data => {
+    const currentSorts = sort.value?.split(",");
+    const isSortAsc = currentSorts.indexOf(data);
+    const isSortDesc = currentSorts.indexOf(`-${data}`);
+
+    if (isSortAsc > -1) {
+      currentSorts[isSortAsc] = `-${data}`;
+      sort.value = currentSorts.join(",");
+    } else if (isSortDesc > -1) {
+      currentSorts[isSortDesc] = data;
+      sort.value = currentSorts.join(",");
+    } else {
+      sort.value = data;
+    }
   };
 
   watch(
@@ -155,6 +192,13 @@ export function useHooks() {
       }
     }
   );
+
+  watch([sort], async (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      getCurrentDateCurrentGroup().catch();
+      getCompareDateCurrentGroup().catch();
+    }
+  });
 
   watch(getCompareDateStatus, async newValue => {
     if (!newValue) {
@@ -176,6 +220,9 @@ export function useHooks() {
   });
 
   return {
-    dataLoading
+    dataLoading,
+    handleSort,
+    onSort,
+    sortBy
   };
 }

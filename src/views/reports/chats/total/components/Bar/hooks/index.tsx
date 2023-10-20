@@ -126,8 +126,15 @@ export function useHooks() {
           focus: "series"
         },
         itemStyle: {
-          color: data?.color
+          color: data?.color,
+          shadowBlur: {
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+            shadowBlur: 10
+          }
         },
+        seriesLayoutBy: "row",
+        legendHoverLink: true,
+        showBackground: true,
         data: data?.count
       });
     }

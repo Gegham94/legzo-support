@@ -24,9 +24,10 @@ const { setOptions, resize } = useECharts(barChartRef as Ref<HTMLDivElement>, {
 
 setOptions({
   tooltip: {
-    trigger: "axis",
+    trigger: "item",
     axisPointer: {
-      type: "shadow"
+      axis: "x",
+      type: "none"
     }
   },
   toolbox: {

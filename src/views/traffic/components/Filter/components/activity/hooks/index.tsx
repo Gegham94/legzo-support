@@ -11,7 +11,7 @@ export function useActivityHooks() {
     { label: "Supervised", value: "Supervised" },
     { label: "Chatting", value: "Chatting" },
     { label: "Queued", value: "Queued" },
-    { label: "Inactive", value: "inactive" }
+    { label: "Inactive", value: "Inactive" }
   ]);
 
   const isInputsEmpty = computed(() => {

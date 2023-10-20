@@ -8,17 +8,18 @@ defineOptions({
 
 const {
   dataLoading,
-  isActionsActive,
-  isTransferChacked,
-  isInactiveChecked,
-  isCloseChecked,
+  getActionsStatus,
+  isTransferActive,
+  isInactiveActive,
+  isCloseActive,
+  isOverloadActive,
   transferMinutes,
   inactiveMinutes,
   closeMinutes,
+  overloadMinutes,
   saveChanges,
-  discardChanges,
-  onChangeInput,
-  onChangeCheckbox
+  setDefaultValues,
+  onChange
 } = useInactivityTimeoutes();
 </script>
 
@@ -37,8 +38,8 @@ const {
         <div>
           <el-checkbox
             label="transfer"
-            v-model="isTransferChacked"
-            @change="onChangeCheckbox()"
+            v-model="isTransferActive"
+            @change="onChange()"
           >
             <span class="title">When the agent is not responding for</span>
           </el-checkbox>
@@ -48,8 +49,8 @@ const {
             :min="1"
             :max="60"
             controls-position="right"
-            @change="onChangeInput()"
-            :disabled="!isTransferChacked"
+            @change="onChange()"
+            :disabled="!isTransferActive"
           />
           <span class="title"
             >minutes, transfer the visitor to another agent.</span
@@ -65,8 +66,8 @@ const {
         <div>
           <el-checkbox
             label="inactive"
-            v-model="isInactiveChecked"
-            @change="onChangeCheckbox()"
+            v-model="isInactiveActive"
+            @change="onChange()"
           >
             <span class="title"
               >When there are no new messages in the chat for</span
@@ -78,8 +79,8 @@ const {
             :min="1"
             :max="60"
             controls-position="right"
-            @change="onChangeInput()"
-            :disabled="!isInactiveChecked"
+            @change="onChange()"
+            :disabled="!isInactiveActive"
           />
           <span class="title"> minutes, make the chat inactive.</span>
         </div>
@@ -94,8 +95,8 @@ const {
         <div>
           <el-checkbox
             label="close"
-            v-model="isCloseChecked"
-            @change="onChangeCheckbox()"
+            v-model="isCloseActive"
+            @change="onChange()"
           >
             <span class="title">
               When there are no new messages in the chat for
@@ -107,22 +108,43 @@ const {
             :min="1"
             :max="60"
             controls-position="right"
-            @change="onChangeInput()"
-            :disabled="!isCloseChecked"
+            @change="onChange()"
+            :disabled="!isCloseActive"
           />
           <span class="title"> minutes, close the chat. </span>
         </div>
       </div>
+      <div class="wrapper">
+        <div>
+          <el-checkbox
+            label="overload"
+            v-model="isOverloadActive"
+            @change="onChange()"
+          >
+            <span class="title">
+              When the operator is overloaded, don't accept chat for
+            </span>
+          </el-checkbox>
+          <el-input-number
+            v-model="overloadMinutes"
+            class="ml-1 mr-1"
+            :min="1"
+            :max="60"
+            controls-position="right"
+            @change="onChange()"
+            :disabled="!isOverloadActive"
+          />
+          <span class="title"> minutes. </span>
+        </div>
+      </div>
       <div class="actions">
         <el-button
-          :disabled="!isActionsActive"
+          :disabled="!getActionsStatus"
           type="primary"
           @click="saveChanges"
           >Save changes</el-button
         >
-        <el-button :disabled="!isActionsActive" @click="discardChanges"
-          >Discard changes</el-button
-        >
+        <el-button @click="setDefaultValues">Discard changes</el-button>
       </div>
     </div>
   </div>

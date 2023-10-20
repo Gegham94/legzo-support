@@ -1,5 +1,5 @@
 import { onMounted, ref } from "vue";
-import { useReportStore, useReportHook } from "@/store/modules/reports";
+import { useReportStore } from "@/store/modules/reports";
 import { storeToRefs } from "pinia";
 import { FormInstance } from "element-plus";
 import { http } from "@/utils/http";
@@ -25,9 +25,6 @@ export function useHooks() {
     }
   };
 
-  const setVisible = data => {
-    useReportHook().setVisible(data);
-  };
   onMounted(() => {
     getListAgents().catch();
   });
@@ -35,7 +32,6 @@ export function useHooks() {
   return {
     agentList,
     filters,
-    setVisible,
     ruleFormRef
   };
 }

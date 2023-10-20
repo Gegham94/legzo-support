@@ -202,6 +202,7 @@
 
 <script>
 import { Database } from "emoji-picker-element";
+import { http } from "@/utils/http";
 
 import SvgIcon from "../../components/SvgIcon/SvgIcon.vue";
 import EmojiPickerContainer from "../../components/EmojiPickerContainer/EmojiPickerContainer.vue";
@@ -286,6 +287,7 @@ export default {
       messageReply: null,
       cursorRangePosition: null,
       files: [],
+      uuids: [],
       fileDialog: false,
       selectUsersTagItem: null,
       selectEmojiItem: null,
@@ -578,32 +580,46 @@ export default {
       this.$refs.file.click();
     },
     async onFileChange(files) {
-      this.fileDialog = true;
-      this.focusTextarea();
+      try {
+        this.fileDialog = true;
+        this.focusTextarea();
 
-      Array.from(files).forEach(async file => {
-        const fileURL = URL.createObjectURL(file);
-        const typeIndex = file.name.lastIndexOf(".");
+        Array.from(files).forEach(async (file, index) => {
+          const fileURL = URL.createObjectURL(file);
+          const typeIndex = file.name.lastIndexOf(".");
+          const formData = new FormData();
 
-        this.files.push({
-          loading: true,
-          name: file.name.substring(0, typeIndex),
-          size: file.size,
-          type: file.type,
-          extension: file.name.substring(typeIndex + 1),
-          localUrl: fileURL
+          this.files.push({
+            loading: true,
+            name: file.name.substring(0, typeIndex),
+            size: file.size,
+            type: file.type,
+            extension: file.name.substring(typeIndex + 1),
+            localUrl: fileURL
+          });
+          const blobFile = await fetch(fileURL).then(res => res.blob());
+          const loadedFile = this.files.find(file => file.localUrl === fileURL);
+          formData.append("file", files[index]);
+          const { data } = await http.post(
+            `/managers/room/${this.room.id}/messages/upload`,
+            { data: formData },
+            {
+              headers: {
+                "Content-Type": "multipart/form-data"
+              }
+            }
+          );
+          this.uuids = [...this.uuids, ...data];
+
+          if (loadedFile) {
+            loadedFile.blob = blobFile;
+            loadedFile.loading = false;
+            delete loadedFile.loading;
+          }
         });
-
-        const blobFile = await fetch(fileURL).then(res => res.blob());
-
-        const loadedFile = this.files.find(file => file.localUrl === fileURL);
-
-        if (loadedFile) {
-          loadedFile.blob = blobFile;
-          loadedFile.loading = false;
-          delete loadedFile.loading;
-        }
-      });
+      } catch (error) {
+        console.error("Network Error:", error);
+      }
 
       setTimeout(() => (this.fileDialog = false), 500);
     },
@@ -655,7 +671,7 @@ export default {
     sendMessage() {
       let message = this.message.trim();
 
-      if (!this.files.length && !message) return;
+      if (!this.uuids.length && !message) return;
 
       if (this.isFileLoading) return;
 
@@ -666,7 +682,7 @@ export default {
         );
       });
 
-      const files = this.files.length ? this.files : null;
+      const files = this.uuids.length ? this.uuids : null;
 
       if (this.editedMessage._id) {
         if (
@@ -876,6 +892,7 @@ export default {
       this.editedMessage = {};
       this.messageReply = null;
       this.files = [];
+      this.uuids = [];
       this.emojiOpened = false;
       this.preventKeyboardFromClosing();
 

@@ -45,6 +45,7 @@ export function useTransfer(props) {
 
       if (data.success) {
         clearData();
+        message("Agent successfully transferred", { type: "success" });
       } else if (data.message) {
         message(data.message, { type: "error" });
       }
@@ -64,6 +65,7 @@ export function useTransfer(props) {
 
       if (data.success) {
         clearData();
+        message("Group successfully transferred", { type: "success" });
       } else if (data.message) {
         message(data.message, { type: "error" });
       }

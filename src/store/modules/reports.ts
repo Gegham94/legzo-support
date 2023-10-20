@@ -9,6 +9,8 @@ import {
   defaultChatResponseTime
 } from "@/constants/common";
 
+moment.tz.setDefault("UTC");
+
 export const useReportStore = defineStore({
   id: "pure-reports",
   state: (): reportFilterType => ({
@@ -43,26 +45,28 @@ export const useReportStore = defineStore({
         }
       },
       filterTags: [],
+      filterCountry: [],
       visible: {
         date: false,
         agent: false,
         group: false,
-        tag: false
+        tag: false,
+        country: false
       }
     },
     agentsTotal: {
       performance: {
         currentDateCurrentGroup: {
-          chats_count: 1,
+          chats_count: 0,
           chats_rated_good: 0,
-          chats_rated_bad: 1,
+          chats_rated_bad: 0,
           first_response_chats_count: 0,
           first_response_time: 0
         },
         compareDateCurrentGroup: {
-          chats_count: 1,
+          chats_count: 0,
           chats_rated_good: 0,
-          chats_rated_bad: 1,
+          chats_rated_bad: 0,
           first_response_chats_count: 0,
           first_response_time: 0
         }
@@ -172,6 +176,9 @@ export const useReportStore = defineStore({
     getTags() {
       return this.filters.filterTags;
     },
+    getCountry() {
+      return this.filters.filterCountry;
+    },
     getFilterList() {
       return this.filters.filterList;
     },
@@ -213,6 +220,22 @@ export const useReportStore = defineStore({
     setFilterCompareGroupData(data) {
       this.filters.filterGroups.compare.data = data;
     },
+    clearFilterCompareDate() {
+      this.filters.filterDate.compare = {
+        status: false,
+        from: 0,
+        to: 0,
+        interval: ""
+      };
+      this.agentsTotal.detailsReport.compareDateCurrentGroup = [];
+      this.agentsTotal.performance.compareDateCurrentGroup = {
+        chats_count: 0,
+        chats_rated_good: 0,
+        chats_rated_bad: 0,
+        first_response_chats_count: 0,
+        first_response_time: 0
+      };
+    },
     clearFilterAgent() {
       this.filters.filterAgents = {
         current: [],
@@ -233,6 +256,9 @@ export const useReportStore = defineStore({
     },
     clearFilterTag() {
       this.filters.filterTags = [];
+    },
+    clearFilterCountry() {
+      this.filters.filterCountry = [];
     },
     setRatedAgents(data) {
       this.chatsRatedAgents = data;

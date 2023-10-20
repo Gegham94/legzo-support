@@ -28,11 +28,19 @@ export type CreateTemplate = {
   text: string;
 };
 
-export type ChatTimeoutes = {
-  chat_timeout_transfer: number;
-  chat_timeout_inactive: number;
-  chat_timeout_close: number;
-};
+export type ChatTimeoutes = [
+  {
+    id: number;
+    code: string;
+    name: string;
+    description: string;
+    active: boolean;
+    value: string;
+    default_value: string;
+    created_at: string;
+    updated_at: string;
+  }
+];
 
 export type AutoMessage = {
   welcome_message: string;

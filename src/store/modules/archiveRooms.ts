@@ -4,13 +4,44 @@ import { roomsType } from "./types";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { CustomerDetail, Message, Room, Tag } from "@/api/chats/interfaces";
+import moment from "moment-timezone";
 
 export const useArchiveRoomsStore = defineStore({
   id: "pure-archive-rooms",
   state: (): roomsType => ({
+    filters: {
+      filterList: [],
+      filterDate: {
+        current: {
+          from: 0,
+          to: 0,
+          interval: "",
+          date: moment().unix() * 1000
+        }
+      },
+      filterAgents: {
+        current: []
+      },
+      filterGroups: {
+        current: []
+      },
+      filterTags: [],
+      filterCountry: [],
+      filterRating: [],
+      visible: {
+        date: false,
+        agent: false,
+        group: false,
+        tag: false,
+        country: false,
+        rating: false
+      }
+    },
     roomsList: [],
     selectedRoomId: null,
-    currentUser: null
+    currentUser: undefined,
+    messageStatus: false,
+    dataLoading: false
   }),
   getters: {
     getRooms() {
@@ -27,6 +58,36 @@ export const useArchiveRoomsStore = defineStore({
     },
     getCurrentUser() {
       return this.currentUser;
+    },
+    getCurrentDateCustom() {
+      return this.filters.filterDate.current.date;
+    },
+    getCurrentDateFrom() {
+      return this.filters.filterDate.current.from;
+    },
+    getCurrentDateTo() {
+      return this.filters.filterDate.current.to;
+    },
+    getCurrentDateInterval() {
+      return this.filters.filterDate.current.interval;
+    },
+    getCurrentAgents() {
+      return this.filters.filterAgents.current;
+    },
+    getCurrentGroups() {
+      return this.filters.filterGroups.current;
+    },
+    getTags() {
+      return this.filters.filterTags;
+    },
+    getCountry() {
+      return this.filters.filterCountry;
+    },
+    getRating() {
+      return this.filters.filterRating;
+    },
+    getFilterList() {
+      return this.filters.filterList;
     }
   },
   actions: {
@@ -136,6 +197,50 @@ export const useArchiveRoomsStore = defineStore({
       }
 
       return data?.length ?? 0;
+    },
+    setCurrentDateInterval(data) {
+      this.filters.filterDate.current.interval = data;
+    },
+    setFilterCurrentDateCustom(data) {
+      this.filters.filterDate.current.date = data;
+    },
+    setFilterCurrentDateFrom(data) {
+      this.filters.filterDate.current.from = data;
+    },
+    setFilterCurrentDateTo(data) {
+      this.filters.filterDate.current.to = data;
+    },
+    setVisible(data) {
+      Object.keys(this.filters.visible).forEach(
+        i => (this.filters.visible[i] = i === data)
+      );
+    },
+    clearFilterDate() {
+      this.filters.filterDate.current = {
+        status: false,
+        from: 0,
+        to: 0,
+        interval: ""
+      };
+    },
+    clearFilterAgent() {
+      this.filters.filterAgents = {
+        current: []
+      };
+    },
+    clearFilterGroup() {
+      this.filters.filterGroups = {
+        current: []
+      };
+    },
+    clearFilterTag() {
+      this.filters.filterTags = [];
+    },
+    clearFilterCountry() {
+      this.filters.filterCountry = [];
+    },
+    clearFilterRating() {
+      this.filters.filterRating = [];
     }
   }
 });

@@ -7,7 +7,6 @@ import { useUserStore } from "@/store/modules/user";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { Message, MessageCreate, Room } from "@/api/chats/interfaces";
-import { formattedFilesBase64 } from "@/utils/room";
 import { useRoomTagsStore } from "@/store/modules/roomTags";
 
 export function useChat() {
@@ -27,12 +26,11 @@ export function useChat() {
     setSelectedRoomId
   } = roomsStore;
   const {
-    getDataLoading,
     getRooms,
     getRoomMessages,
     getCurrentRoom,
     getCurrentUser,
-    getControllerMessageStatus
+    getMessageStatus
   } = storeToRefs(roomsStore);
 
   const transferRoomId = ref(null);
@@ -42,9 +40,6 @@ export function useChat() {
 
   const prevRoomId = ref(null);
 
-  const dataLoading = computed(() => {
-    return getDataLoading.value;
-  });
   const rooms = computed(() => {
     return getRooms.value;
   });
@@ -60,8 +55,8 @@ export function useChat() {
   const getMessages = computed(() => {
     return getRoomMessages.value;
   });
-  const controllerMessageStatus = computed(() => {
-    return getControllerMessageStatus.value;
+  const messageStatus = computed(() => {
+    return getMessageStatus.value;
   });
   const screenHeight = computed(() => {
     return device.value === "mobile"
@@ -114,15 +109,19 @@ export function useChat() {
       files: null,
       replyMessage: null,
       reply_id: null,
-      message_type: 90
+      message_type: 60
     };
 
-    if (!privateMessageStatus && !controllerMessageStatus.value) {
-      delete message.message_type;
+    if (
+      privateMessageStatus ||
+      messageStatus.value ||
+      currentUserId.value !== getCurrentRoom.value.primary_user_id
+    ) {
+      message.message_type = 90;
     }
 
     if (files) {
-      message.files = await formattedFilesBase64(files);
+      message.files = files;
     }
 
     if (replyMessage) {
@@ -183,7 +182,6 @@ export function useChat() {
   });
 
   return {
-    dataLoading,
     rooms,
     screenHeight,
     theme,

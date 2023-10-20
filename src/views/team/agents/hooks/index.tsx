@@ -1,4 +1,4 @@
-import { nextTick, onMounted, ref, watchEffect } from "vue";
+import { nextTick, onMounted, ref, watch, watchEffect } from "vue";
 import { INITIAL_DATA } from "@/api/agents/constants";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
@@ -7,8 +7,14 @@ import { GetGroup } from "@/api/groups/interfaces";
 import { debounce } from "lodash";
 import { ElMessageBox } from "element-plus";
 import { message } from "@/utils/message";
+import { useUserStoreHook } from "@/store/modules/user";
+import { storeToRefs } from "pinia";
+import { updateManagerStatusStore } from "@/api/agents";
 
 export function useAgents() {
+  const usersStore = useUserStoreHook();
+  const { getUser } = storeToRefs(usersStore);
+
   const pagination = ref({
     page: 1,
     perPage: 20,
@@ -28,6 +34,18 @@ export function useAgents() {
   const formLimitData = ref({ ...INITIAL_DATA });
   const formVisible = ref(false);
   const limit = ref(1);
+
+  watch(
+    () => getUser.value.online.status,
+    () => {
+      if (agentList?.value.length) {
+        agentList.value.find(
+          item => item.id === getUser.value.id
+        ).onlineStatus = getUser.value.online.status;
+      }
+    },
+    { deep: true }
+  );
 
   const setSelectedAgent = async agent => {
     if (!agent) {
@@ -181,6 +199,9 @@ export function useAgents() {
       .then(() => {
         agentList.value.find(item => item.id === agent.id).onlineStatus = type;
         selectedAgent.value.onlineStatus = type;
+        if (getUser.value.id === agent.id) {
+          updateManagerStatusStore(type);
+        }
         message("Successfully", { type: "success" });
       })
       .catch(error => {

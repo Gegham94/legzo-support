@@ -1,12 +1,13 @@
 <script setup lang="ts">
 import { useHooks } from "./hooks";
+import { getTotalTime } from "@/utils/common";
 
-const { cardList, getTotalTime } = useHooks();
+const { cardList } = useHooks();
 </script>
 
 <template>
   <el-row :gutter="15">
-    <el-col v-for="(item, index) in cardList" :key="index" :span="4">
+    <el-col v-for="(item, index) in cardList" :key="index" :span="6">
       <el-card shadow="hover">
         <div class="chart-container">
           <div class="chart-title">{{ item.title }}</div>
@@ -16,25 +17,37 @@ const { cardList, getTotalTime } = useHooks();
             >{{ getTotalTime([item.currentCount]) }}</span
           >
           <span v-else style="font-weight: 600">{{ item.currentCount }}</span>
-          <div class="chart-compare">
-            <div
-              class="compare-icon"
-              :class="item.difference > 0 ? 'text-green-600' : 'text-red-600'"
-            />
-            <div
-              class="compare-count"
-              :class="item.difference > 0 ? 'text-green-600' : 'text-red-600'"
-            >
-              {{ item.compareCount }}
-              <span v-if="item.title === 'First response time'">{{
-                `(${getTotalTime([item.difference])})`
-              }}</span>
-              <span v-else>{{
-                item.difference !== 0 ? `(${item.difference})` : ""
-              }}</span>
+          <div v-if="item.compareCount">
+            <div class="chart-compare">
+              <div
+                class="compare-icon"
+                :class="
+                  item.difference >= 0 ? 'text-green-600' : 'text-red-600'
+                "
+              />
+              <div
+                v-if="item.title === 'First response time'"
+                class="compare-count"
+                :class="
+                  item.difference >= 0 ? 'text-green-600' : 'text-red-600'
+                "
+              >
+                {{ getTotalTime([item.compareCount]) }}
+                <span>({{ getTotalTime([item.difference]) }})</span>
+              </div>
+              <div
+                v-else
+                class="compare-count"
+                :class="
+                  item.difference >= 0 ? 'text-green-600' : 'text-red-600'
+                "
+              >
+                {{ item.compareCount }}
+                <span>({{ item?.difference ?? "" }})</span>
+              </div>
             </div>
+            <div class="compare-period">from compared period</div>
           </div>
-          <div class="compare-period">from compared period</div>
         </div>
       </el-card>
     </el-col>
@@ -79,6 +92,10 @@ const { cardList, getTotalTime } = useHooks();
     border-left-color: transparent;
     border-width: 7px 4px 0;
     margin-top: 7px;
+
+    &.text-green-600 {
+      border-width: 0 4px 7px;
+    }
   }
 }
 

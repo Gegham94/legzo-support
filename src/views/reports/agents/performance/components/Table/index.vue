@@ -2,6 +2,16 @@
 import { ElAutoResizer } from "element-plus";
 import { useHooks } from "./hooks";
 
+const props = defineProps({
+  sortBy: {
+    type: Object,
+    default: () => ({})
+  },
+  onSort: {
+    type: Object,
+    default: () => ({})
+  }
+});
 const { columns, data } = useHooks();
 </script>
 
@@ -12,9 +22,11 @@ const { columns, data } = useHooks();
         <el-table-v2
           :columns="columns"
           :data="data"
+          :sort-by="props.sortBy"
           :width="width"
           :height="height"
           fixed
+          @column-sort="props.onSort"
         />
       </template>
     </el-auto-resizer>
@@ -45,6 +57,19 @@ const { columns, data } = useHooks();
   min-width: 50px;
 }
 
+.compare-icon {
+  width: 0;
+  height: 0;
+  border-style: solid;
+  border-right-color: transparent;
+  border-left-color: transparent;
+  border-width: 7px 4px 0;
+
+  &.text-green-600 {
+    border-width: 0 4px 7px;
+  }
+}
+
 .vs-value {
   padding: 0 5px;
   color: #acadae;
@@ -61,6 +86,11 @@ const { columns, data } = useHooks();
 
   .difference-count {
     font-size: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    margin-top: 5px;
   }
 }
 </style>

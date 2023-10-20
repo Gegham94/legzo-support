@@ -17,7 +17,7 @@
         :placeholder="textMessages.SEARCH"
         autocomplete="off"
         class="vac-input"
-        @input="$emit('search-room', $event)"
+        @input="onInput"
       />
     </template>
     <div
@@ -34,7 +34,7 @@
 
 <script>
 import SvgIcon from "../../components/SvgIcon/SvgIcon.vue";
-
+import { debounce } from "lodash";
 export default {
   name: "RoomsSearch",
   components: { SvgIcon },
@@ -52,6 +52,13 @@ export default {
   computed: {
     showSearchBar() {
       return this.showSearch || this.showAddRoom;
+    }
+  },
+  methods: {
+    onInput: function (val) {
+      debounce(() => {
+        this.$emit("search-room", val);
+      }, 1500)();
     }
   }
 };

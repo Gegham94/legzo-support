@@ -1,60 +1,15 @@
 import { useReportStore } from "@/store/modules/reports";
 import { storeToRefs } from "pinia";
 import moment from "moment/moment";
+import { getTotalTime } from "@/utils/common";
 
-const posList = [
-  "left",
-  "right",
-  "top",
-  "bottom",
-  "inside",
-  "insideTop",
-  "insideLeft",
-  "insideRight",
-  "insideBottom",
-  "insideTopLeft",
-  "insideTopRight",
-  "insideBottomLeft",
-  "insideBottomRight"
-];
 const app = {
-  configParameters: {
-    rotate: {
-      min: -90,
-      max: 90
-    },
-    align: {
-      options: {
-        left: "left",
-        center: "center",
-        right: "right"
-      }
-    },
-    verticalAlign: {
-      options: {
-        top: "top",
-        middle: "middle",
-        bottom: "bottom"
-      }
-    },
-    position: {
-      options: posList.reduce(function (map, pos) {
-        map[pos] = pos;
-        return map;
-      }, {})
-    },
-    distance: {
-      min: 0,
-      max: 1000
-    }
-  },
   config: {
     rotate: 90,
     align: "left",
     verticalAlign: "middle",
     position: "insideBottom",
-    distance: 15,
-    onChange: function () {}
+    distance: 15
   }
 };
 
@@ -65,16 +20,7 @@ const labelOption = {
   align: app.config.align,
   verticalAlign: app.config.verticalAlign,
   rotate: app.config.rotate,
-  formatter: function (params) {
-    const seconds = [params.value].reduce((a, b) => a + b, 0);
-    if (seconds >= 3600) {
-      return moment.utc(seconds * 1000).format("H[h] m[m] s[s]");
-    } else if (seconds >= 60) {
-      return moment.utc(seconds * 1000).format("m[m] s[s]");
-    } else {
-      return moment.utc(seconds * 1000).format("s[s]");
-    }
-  },
+  formatter: params => getTotalTime([params.value]),
   fontSize: 12,
   color: "#333",
   rich: {
@@ -98,15 +44,15 @@ export function useHooks() {
   };
 
   const getName = title => {
-    let name = title.date;
+    let name = `<div class="flex flex-col">`;
     if (title.group) {
-      name = `${name} | ${title.group}`;
+      name = `<div class="font-bold">${name}</div><div class="font-bold">${title.group}</div>`;
     }
     if (title.agent) {
-      name = `${name} | ${title.agent}`;
+      name = `<div class="font-bold">${name}</div><div class="font-bold">${title.agent}</div>`;
     }
 
-    return name;
+    return `${name}</div>`;
   };
 
   const legendData = [
@@ -126,6 +72,18 @@ export function useHooks() {
 
   legendData.map(item => {
     const data = agentsResponseTime.value[item];
+    const formatterData = [];
+
+    data.first_response_time.forEach((element, index) => {
+      formatterData.push({
+        name: "time",
+        value: element,
+        name1: "count",
+        value1: data["count"][index],
+        name2: "date",
+        value2: data["label"][index]
+      });
+    });
 
     if (agentsResponseTime.value[item]?.first_response_time?.length) {
       dataSeries.push({
@@ -136,9 +94,16 @@ export function useHooks() {
           focus: "series"
         },
         itemStyle: {
-          color: data?.color
+          color: data?.color,
+          shadowBlur: {
+            shadowColor: "rgba(0, 0, 0, 0.5)",
+            shadowBlur: 10
+          }
         },
-        data: data?.first_response_time
+        data: formatterData,
+        seriesLayoutBy: "row",
+        legendHoverLink: true,
+        showBackground: true
       });
     }
   });

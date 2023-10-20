@@ -33,8 +33,8 @@ dataThemeChange();
 const { title } = useNav();
 
 const ruleForm = reactive({
-  email: "admin@jetmail.cc",
-  password: "adminpass"
+  email: "",
+  password: ""
 });
 
 const onLogin = async (formEl: FormInstance | undefined) => {
@@ -108,20 +108,11 @@ onBeforeUnmount(() => {
             size="large"
           >
             <Motion :delay="100">
-              <el-form-item
-                :rules="[
-                  {
-                    required: true,
-                    message: 'Please enter account',
-                    trigger: 'blur'
-                  }
-                ]"
-                prop="email"
-              >
+              <el-form-item prop="email">
                 <el-input
                   clearable
                   v-model="ruleForm.email"
-                  placeholder="Account"
+                  placeholder="Email"
                   :prefix-icon="useRenderIcon(User)"
                 />
               </el-form-item>

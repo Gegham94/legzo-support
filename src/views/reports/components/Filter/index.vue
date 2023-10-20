@@ -3,6 +3,7 @@ import FilterAgent from "./components/Agent/index.vue";
 import FilterDate from "./components/Date/index.vue";
 import FilterGroup from "./components/Group/index.vue";
 import FilterTag from "./components/Tag/index.vue";
+import FilterCountry from "./components/Country/index.vue";
 
 import { useReportStore } from "@/store/modules/reports";
 import { storeToRefs } from "pinia";
@@ -36,6 +37,10 @@ const props = defineProps({
     type: Boolean,
     default: true
   },
+  isCountry: {
+    type: Boolean,
+    default: true
+  },
   isSinglePeriod: {
     type: Boolean,
     default: false
@@ -60,6 +65,7 @@ const { filters } = storeToRefs(reportStore);
           <el-option v-if="props.isAgent" label="Agent" value="agent" />
           <el-option v-if="props.isGroup" label="Group" value="group" />
           <el-option v-if="props.isTag" label="Tag" value="tag" />
+          <!--<el-option v-if="props.isCountry" label="Country" value="country" />-->
         </el-select>
       </el-form-item>
     </el-form>
@@ -77,6 +83,9 @@ const { filters } = storeToRefs(reportStore);
       :is-compare="isGroupCompare"
     />
     <FilterTag v-if="props.isTag && filters.filterList?.includes('tag')" />
+    <FilterCountry
+      v-if="props.isCountry && filters.filterList?.includes('country')"
+    />
   </div>
 </template>
 

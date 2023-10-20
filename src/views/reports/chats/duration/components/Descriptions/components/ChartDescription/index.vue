@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useHooks } from "../../hooks";
+import { getTotalTime } from "@/utils/common";
 
 defineOptions({
   name: "ChartDescription"
@@ -12,7 +13,7 @@ const props = defineProps({
   }
 });
 
-const { getTotalSumma, getTotalTime } = useHooks();
+const { getTotalSumma } = useHooks();
 </script>
 
 <template>

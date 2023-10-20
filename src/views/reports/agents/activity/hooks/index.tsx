@@ -2,17 +2,15 @@ import { onMounted, onUnmounted, ref, watch } from "vue";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { message } from "@/utils/message";
-import moment from "moment-timezone";
+import moment from "moment";
 import { isEqual } from "lodash";
 import { useReportHook, useReportStore } from "@/store/modules/reports";
 import { storeToRefs } from "pinia";
 import { activityAgents } from "@/store/modules/types";
 
-const offsetUTC = Math.round(new Date().getTimezoneOffset() / 60);
-moment.tz.setDefault(`${offsetUTC}:00`);
-
 export function useHooks() {
   const dataLoading = ref(true);
+  const isHideEmpty = ref(true);
 
   const reportStore = useReportStore();
   const reportHook = useReportHook();
@@ -42,7 +40,8 @@ export function useHooks() {
               tzOffset: new Date().getTimezoneOffset(),
               method: method,
               from: moment(params.from).format("DD-MM-YYYY"),
-              to: moment(params.to).format("DD-MM-YYYY")
+              to: moment(params.to).format("DD-MM-YYYY"),
+              isHideEmpty: isHideEmpty.value
             }
           }
         );
@@ -96,7 +95,7 @@ export function useHooks() {
               break;
             case "user.offline":
               title = "Logged Out";
-              background = "var(--el-input-hover-border-color)";
+              background = "var(--surface-secondary-default)";
               total.logged_out += differentTime;
               break;
           }
@@ -130,7 +129,13 @@ export function useHooks() {
   };
 
   watch(
-    [getCurrentDateCustom, getCurrentAgents, getCurrentGroups, getTags],
+    [
+      getCurrentDateCustom,
+      getCurrentAgents,
+      getCurrentGroups,
+      getTags,
+      isHideEmpty
+    ],
     async (newValue, oldValue) => {
       if (!isEqual(newValue, oldValue)) {
         getData().catch();
@@ -141,16 +146,18 @@ export function useHooks() {
   watch(getFilterList, async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       if (!newValue.includes("agent")) {
-        reportHook.clearFilterAgent();
+        await reportHook.clearFilterAgent();
       }
 
       if (!newValue.includes("group")) {
-        reportHook.clearFilterGroup();
+        await reportHook.clearFilterGroup();
       }
 
       if (!newValue.includes("tag")) {
-        reportHook.clearFilterTag();
+        await reportHook.clearFilterTag();
       }
+
+      await getData();
     }
   });
 
@@ -165,6 +172,7 @@ export function useHooks() {
   });
 
   return {
-    dataLoading
+    dataLoading,
+    isHideEmpty
   };
 }

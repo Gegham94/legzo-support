@@ -2,14 +2,11 @@ import { onMounted, ref, watch, watchEffect } from "vue";
 import { http } from "@/utils/http";
 import { RequestResult } from "@/api/interfaces";
 import { message } from "@/utils/message";
-import moment from "moment-timezone";
+import moment from "moment";
 import { ChatsTags, TagUsed } from "@/api/reports/interfaces";
 import { isEqual, groupBy } from "lodash";
 import { useReportHook, useReportStore } from "@/store/modules/reports";
 import { storeToRefs } from "pinia";
-
-const offsetUTC = Math.round(new Date().getTimezoneOffset() / 60);
-moment.tz.setDefault(`${offsetUTC}:00`);
 
 export function useHooks() {
   const totalCount = ref(0);
@@ -31,6 +28,7 @@ export function useHooks() {
     getCurrentAgents,
     getCurrentGroups,
     getTags,
+    getCountry,
     getFilterList
   } = storeToRefs(reportStore);
 
@@ -48,6 +46,7 @@ export function useHooks() {
               "filters[agents]": params.agents,
               "filters[groups]": params.groups,
               "filters[tags]": getTags.value,
+              "filters[country]": getCountry.value,
               distribution: "days",
               tzOffset: new Date().getTimezoneOffset(),
               method: method,
@@ -198,7 +197,8 @@ export function useHooks() {
       getCurrentDateTo,
       getCurrentAgents,
       getCurrentGroups,
-      getTags
+      getTags,
+      getCountry
     ],
     async (newValue, oldValue) => {
       if (!isEqual(newValue, oldValue)) {
@@ -211,16 +211,22 @@ export function useHooks() {
   watch(getFilterList, async (newValue, oldValue) => {
     if (!isEqual(newValue, oldValue)) {
       if (!newValue.includes("agent")) {
-        reportHook.clearFilterAgent();
+        await reportHook.clearFilterAgent();
       }
 
       if (!newValue.includes("group")) {
-        reportHook.clearFilterGroup();
+        await reportHook.clearFilterGroup();
       }
 
       if (!newValue.includes("tag")) {
-        reportHook.clearFilterTag();
+        await reportHook.clearFilterTag();
       }
+
+      if (!newValue.includes("country")) {
+        await reportHook.clearFilterCountry();
+      }
+
+      await getData();
     }
   });
 

@@ -17,6 +17,7 @@ export function useHooks(isSinglePeriod = false) {
     getCurrentDateTo,
     getCurrentDateInterval,
     getCompareDateInterval,
+    getCompareDateStatus,
     filters
   } = storeToRefs(reportStore);
 
@@ -255,6 +256,12 @@ export function useHooks(isSinglePeriod = false) {
   watch(getCurrentDateInterval, async (newValue, oldValue) => {
     if (newValue !== oldValue) {
       compareIntervalCalc(getCompareDateInterval.value);
+    }
+  });
+
+  watch(getCompareDateStatus, async newValue => {
+    if (!newValue) {
+      reportHook.clearFilterCompareDate();
     }
   });
 

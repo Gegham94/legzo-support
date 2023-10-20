@@ -1,16 +1,21 @@
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { storeToRefs } from "pinia";
 import { useNav } from "@/layout/hooks/useNav";
 import { useDark } from "@pureadmin/utils";
-import { useArchiveRoomsStore } from "@/store/modules/archiveRooms";
+import {
+  useArchiveRoomsStore,
+  useRoomsStoreHook
+} from "@/store/modules/archiveRooms";
 import { useUserStore } from "@/store/modules/user";
 import { PER_PAGE_COUNT } from "@/constants/common";
 import { useRoomTagsStore } from "@/store/modules/roomTags";
+import { isEqual } from "lodash";
 
 export function useChat() {
   const usersStore = useUserStore();
   const { device } = useNav();
   const { isDark } = useDark();
+  const reportHook = useRoomsStoreHook();
 
   const { getCurrentUserId } = storeToRefs(usersStore);
   const currentUserId = computed(() => {
@@ -29,10 +34,22 @@ export function useChat() {
   } = roomsStore;
   const { getRooms, getRoomMessages, getCurrentUser } = storeToRefs(roomsStore);
 
+  const {
+    getCurrentDateFrom,
+    getCurrentDateTo,
+    getCurrentAgents,
+    getCurrentGroups,
+    getTags,
+    getCountry,
+    getRating,
+    getFilterList
+  } = storeToRefs(roomsStore);
+
   const loadingRooms = ref(true);
   const roomsLoaded = ref(true);
   const roomId = ref("");
   const roomMessage = ref("");
+  const search = ref("");
   const loadedRooms = computed(() => {
     return getRooms.value;
   });
@@ -73,7 +90,23 @@ export function useChat() {
   };
 
   const fetchMoreRooms = async (reset = false) => {
-    fetchRooms({ params: { ...query } }, reset).then(totalCount => {
+    fetchRooms(
+      {
+        params: {
+          page: query.page,
+          perPage: query.perPage,
+          search: search.value,
+          "filters[from]": getCurrentDateFrom.value / 1000,
+          "filters[to]": getCurrentDateTo.value / 1000,
+          "filters[agents]": getCurrentAgents.value,
+          "filters[groups]": getCurrentGroups.value,
+          "filters[tags]": getTags.value,
+          "filters[country]": getCountry.value,
+          "filters[rating]": getRating.value
+        }
+      },
+      reset
+    ).then(totalCount => {
       if (getRooms.value?.length < totalCount) {
         roomsLoaded.value = false;
         query.page++;
@@ -106,6 +139,59 @@ export function useChat() {
     }
   };
 
+  const searchRoom = data => {
+    search.value = data.value;
+  };
+
+  watch(
+    [
+      getCurrentDateFrom,
+      getCurrentDateTo,
+      getCurrentAgents,
+      getCurrentGroups,
+      getTags,
+      getCountry,
+      getRating,
+      search
+    ],
+    async (newValue, oldValue) => {
+      if (!isEqual(newValue, oldValue)) {
+        query.page = 1;
+        await fetchMoreRooms(true).catch();
+      }
+    }
+  );
+
+  watch(getFilterList, async (newValue, oldValue) => {
+    if (!isEqual(newValue, oldValue)) {
+      if (!newValue.includes("date")) {
+        await reportHook.clearFilterDate();
+      }
+
+      if (!newValue.includes("agent")) {
+        await reportHook.clearFilterAgent();
+      }
+
+      if (!newValue.includes("group")) {
+        await reportHook.clearFilterGroup();
+      }
+
+      if (!newValue.includes("tag")) {
+        await reportHook.clearFilterTag();
+      }
+
+      if (!newValue.includes("country")) {
+        await reportHook.clearFilterCountry();
+      }
+
+      if (!newValue.includes("rating")) {
+        await reportHook.clearFilterRating();
+      }
+
+      query.page = 1;
+    }
+  });
+
   onMounted(async () => {
     await resetRooms();
     await fetchMoreRooms(true).catch();
@@ -130,6 +216,7 @@ export function useChat() {
     fetchRoomId,
     tagsRoomId,
     removeRoomTag,
-    closeModalRoom
+    closeModalRoom,
+    searchRoom
   };
 }

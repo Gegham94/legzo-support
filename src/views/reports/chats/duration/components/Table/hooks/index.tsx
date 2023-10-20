@@ -3,7 +3,7 @@ import { storeToRefs } from "pinia";
 
 import type { Column } from "element-plus";
 import { onUnmounted } from "vue";
-import moment from "moment";
+import { getTotalTime } from "@/utils/common";
 
 export function useHooks() {
   const reportStore = useReportStore();
@@ -31,17 +31,6 @@ export function useHooks() {
 
   let data = [];
   let columns: Column<any>[] = [];
-
-  const getTotalTime = data => {
-    const seconds = data.reduce((a, b) => a + b, 0);
-    if (seconds >= 3600) {
-      return moment.utc(seconds * 1000).format("H[h] m[m] s[s]");
-    } else if (seconds >= 60) {
-      return moment.utc(seconds * 1000).format("m[m] s[s]");
-    } else {
-      return moment.utc(seconds * 1000).format("s[s]");
-    }
-  };
 
   if (currentDateCurrentAgentCurrentGroup.title.group) {
     columns.push({
@@ -84,26 +73,27 @@ export function useHooks() {
         }
         rowCol = {
           ...rowCol,
-          [`column-${rowIndex}`]: compareCount ? (
-            <div class="total-value">
-              <div class="current-value">
-                <span class="count">{count}</span>
-                <span
-                  class={
-                    differenceCount > 0
-                      ? "difference-count text-green-500"
-                      : "difference-count text-red-500"
-                  }
-                >
-                  ({differenceCount})
-                </span>
+          [`column-${rowIndex}`]:
+            compareCount !== undefined ? (
+              <div class="total-value">
+                <div class="current-value">
+                  <span class="count">{count}</span>
+                  <span
+                    class={
+                      differenceCount > 0
+                        ? "difference-count text-green-500"
+                        : "difference-count text-red-500"
+                    }
+                  >
+                    ({differenceCount})
+                  </span>
+                </div>
+                <div />
+                <div class="current-value">{compareCount}</div>
               </div>
-              <div />
-              <div class="current-value">{compareCount}</div>
-            </div>
-          ) : (
-            <div class="compare-value">{getTotalTime([count])}</div>
-          )
+            ) : (
+              <div class="compare-value">{getTotalTime([count])}</div>
+            )
         };
       });
 

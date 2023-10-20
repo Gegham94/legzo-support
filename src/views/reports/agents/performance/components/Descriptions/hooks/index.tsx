@@ -1,5 +1,4 @@
 import { useReportStore } from "@/store/modules/reports";
-import moment from "moment";
 import { storeToRefs } from "pinia";
 
 export function useHooks() {
@@ -10,7 +9,7 @@ export function useHooks() {
 
   const cardList = [
     {
-      title: "Chats count",
+      title: "Total chats",
       currentCount: getPerformanceCurrent.value.chats_count,
       compareCount: getPerformanceCompare.value.chats_count,
       difference:
@@ -34,14 +33,6 @@ export function useHooks() {
         getPerformanceCompare.value.chats_rated_bad
     },
     {
-      title: "First response chats",
-      currentCount: getPerformanceCurrent.value.first_response_chats_count,
-      compareCount: getPerformanceCompare.value.first_response_chats_count,
-      difference:
-        getPerformanceCurrent.value.first_response_chats_count -
-        getPerformanceCompare.value.first_response_chats_count
-    },
-    {
       title: "First response time",
       currentCount: getPerformanceCurrent.value.first_response_time,
       compareCount: getPerformanceCompare.value.first_response_time,
@@ -51,19 +42,7 @@ export function useHooks() {
     }
   ];
 
-  const getTotalTime = data => {
-    const seconds = data.reduce((a, b) => a + b, 0);
-    if (seconds >= 3600) {
-      return moment.utc(seconds * 1000).format("H[h] m[m] s[s]");
-    } else if (seconds >= 60) {
-      return moment.utc(seconds * 1000).format("m[m] s[s]");
-    } else {
-      return moment.utc(seconds * 1000).format("s[s]");
-    }
-  };
-
   return {
-    cardList,
-    getTotalTime
+    cardList
   };
 }

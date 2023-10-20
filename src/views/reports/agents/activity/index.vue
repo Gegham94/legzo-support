@@ -7,7 +7,7 @@ defineOptions({
   name: "ReportAgentsActivity"
 });
 
-const { dataLoading } = useHooks();
+const { dataLoading, isHideEmpty } = useHooks();
 </script>
 
 <template>
@@ -17,6 +17,7 @@ const { dataLoading } = useHooks();
       :is-date-compare="false"
       :is-agent-compare="false"
       :is-single-period="true"
+      :is-country="false"
     />
     <el-row :gutter="24" style="margin: 20px">
       <el-col
@@ -37,8 +38,14 @@ const { dataLoading } = useHooks();
       >
         <el-card>
           <template #header>
-            <div class="card-header">
-              <span class="font-medium">Agent activity</span>
+            <div class="card-header flex justify-between">
+              <div>
+                <span class="font-medium">Agent activity</span>
+              </div>
+              <div class="flex items-center">
+                <el-switch v-model="isHideEmpty" class="ml-2 mr-2" />
+                <span class="font-medium">Hide inactive agents</span>
+              </div>
             </div>
           </template>
           <el-skeleton animated :rows="7" :loading="dataLoading">

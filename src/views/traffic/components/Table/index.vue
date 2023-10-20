@@ -68,7 +68,7 @@ const props = defineProps({
             </span>
             <span v-else-if="scope.column.property === 'actions'">
               <span v-if="scope.row.activity === 'queued'">
-                <el-button type="primary" @click="chatAction(scope.row, 2)">
+                <el-button type="primary" @click="chatAction(scope.row, true)">
                   Start chat</el-button
                 >
               </span>
@@ -76,7 +76,7 @@ const props = defineProps({
                 <el-button
                   color="#626aef"
                   type="primary"
-                  @click="chatAction(scope.row)"
+                  @click="chatAction(scope.row, false)"
                   >Control chat</el-button
                 >
               </span>
@@ -129,7 +129,7 @@ const props = defineProps({
           <input
             type="checkbox"
             v-model="option.isSelected"
-            :disabled="option.value === 'name'"
+            :disabled="option.value === 'agent_name'"
           />
           {{ option.label }}
         </label>
@@ -172,7 +172,7 @@ const props = defineProps({
       background: var(--surface-primary-default);
       box-shadow: 0 6px 20px 0 rgb(19 19 23 / 30%);
       padding: 8px 11px;
-      max-height: 390px;
+      max-height: 360px;
       overflow-y: auto;
       z-index: 1000;
       border-radius: 4px;

@@ -93,10 +93,15 @@ export const listenRoomsChannel = (id: number): void => {
           roomsStore.addNewRoom(response.room);
           break;
         case 2:
+          leaveChannelMessages(`room.${response.room.id}`);
+          roomsStore.deleteRoom(response.room);
+          break;
         case 3:
+          leaveChannelMessages(`room.${response.room.id}`);
           roomsStore.deleteRoom(response.room);
           break;
         case 4:
+          leaveChannelMessages(`room.${response.room.id}`);
           roomsStore.deleteRoom(response.room);
           break;
       }
